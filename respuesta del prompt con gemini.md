@@ -1,171 +1,189 @@
-¡Qué tal, Edgar! Como arquitecto de software, me parece un proyecto excelente y muy ambicioso. Construir un sistema como este es el paso ideal para llevar un gestor financiero, digamos algo de la escala de un "FinanTrack", al siguiente nivel. 
+¡Excelente iniciativa! Como arquitecto de software, he diseñado un plan de trabajo que integra el desarrollo de **Flutter** con la metodología de orquestación de agentes de **Antigravity**. 
 
-Para que esta práctica guiada sea un éxito y destaque en tu grupo 6-J, vamos a estructurarla utilizando la metodología de agentes (Antigravity). Este enfoque simula un equipo de desarrollo impulsado por IA, dividiendo el trabajo en roles y habilidades específicas.
-
-Aquí tienes el plan de trabajo completo y la arquitectura del sistema.
+Este enfoque no solo construye el CRUD, sino que enseña a los estudiantes cómo delegar tareas a agentes especializados dentro de un flujo de trabajo automatizado.
 
 ---
 
-### Fase 1: Metodología Antigravity (Agentes y Flujo de Trabajo)
+## 1. Metodología de Trabajo: Flujo de Agentes (Antigravity)
 
-Para construir software complejo, dividimos el proyecto asignando "Agentes" con roles y *skills* (habilidades) específicos. Si estás guiando a otros estudiantes, puedes asignarles estos roles.
+Para que el proyecto sea funcional bajo este paradigma, definiremos los siguientes roles y flujos.
 
-1.  **Agente Arquitecto de Datos (DBA Agent)**
-    * **Rol:** Diseñar la base de datos NoSQL y la lógica de relaciones.
-    * **Skills:** Modelado en Firestore, estructuración de colecciones/subcolecciones.
-    * **Flujo:** Define que un `usuario` tendrá subcolecciones independientes para `gastos` e `ingresos` para escalar sin problemas.
-2.  **Agente Backend y Seguridad (DevOps Agent)**
-    * **Rol:** Configurar la consola de Firebase y conectar el proyecto Flutter.
-    * **Skills:** Configuración de `firebase_core`, reglas de seguridad de Firestore.
-    * **Flujo:** Implementa las dependencias en `pubspec.yaml` y asegura la conexión.
-3.  **Agente Frontend (Flutter UI/UX Agent)**
-    * **Rol:** Construir la interfaz de usuario y conectar la lógica CRUD.
-    * **Skills:** Programación en Dart, manejo de estado, diseño de Widgets.
-    * **Flujo:** Crea los formularios para ingresar datos y las listas para leerlos.
+### Estructura de Agentes y Roles
+| Agente | Rol | Skill (Habilidad) |
+| :--- | :--- | :--- |
+| **Architect Agent** | Definir estructura | Generación de `pubspec.yaml` y carpetas. |
+| **Firebase Agent** | Configurar Backend | Enlace con Firestore y Auth. |
+| **Data Agent** | Modelado | Creación de clases `Gasto`, `Ingreso` y `Usuario`. |
+| **Logic Agent** | Implementar CRUD | Métodos `add`, `get`, `update`, `delete`. |
+
+### Flujo de Trabajo
+1.  **Inicio:** El usuario solicita la creación de la carpeta `crudfinanzas`.
+2.  **Configuración:** El Architect Agent genera la estructura de archivos.
+3.  **Vinculación:** El Firebase Agent asegura que el `google-services.json` esté en su lugar.
+4.  **Generación:** El Data Agent construye los modelos Dart.
+5.  **Despliegue:** El Logic Agent conecta la UI con Firestore.
 
 ---
 
-### Fase 2: Arquitectura y Estructura de Carpetas
+## 2. Configuración Inicial y Dependencias
 
-Ejecuta en tu terminal el comando `flutter create crudfinanzas`. Una vez creado, abre el proyecto y organiza tu carpeta `lib` de esta manera para mantener el código modular:
-
-```text
-crudfinanzas/
-├── lib/
-│   ├── models/
-│   │   ├── usuario_model.dart
-│   │   ├── transaccion_model.dart
-│   ├── screens/
-│   │   ├── home_screen.dart
-│   │   ├── crud_screen.dart
-│   ├── services/
-│   │   ├── firebase_service.dart
-│   ├── main.dart
-├── pubspec.yaml
+### Creación del Proyecto
+```bash
+flutter create crudfinanzas
+cd crudfinanzas
 ```
 
----
-
-### Fase 3: Integración de Librerías y Firebase
-
-**1. Actualizar `pubspec.yaml`**
-El *DevOps Agent* debe agregar las librerías necesarias. Abre tu archivo `pubspec.yaml` y bajo `dependencies`, agrega:
+### Archivo `pubspec.yaml`
+Añade estas líneas bajo la sección `dependencies`:
 
 ```yaml
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: ^2.32.0 # Inicializa Firebase
-  cloud_firestore: ^4.17.5 # Base de datos
-  # Nota: Para un proyecto real, también usaríamos firebase_auth
+  firebase_core: ^2.27.0
+  cloud_firestore: ^4.15.8
+  firebase_auth: ^4.17.8
 ```
-
-**2. Configurar Consola de Firebase**
-1. Ve a [Firebase Console](https://console.firebase.google.com/) y haz clic en "Agregar proyecto" (nómbralo `crudfinanzas`).
-2. Ve a "Compilación" > "Firestore Database" y haz clic en "Crear base de datos" (comienza en modo de prueba para la práctica).
-3. Registra tu app Flutter usando el CLI de Firebase (`flutterfire configure`).
-
-*Nota de Seguridad:* Mencionaste guardar la "contraseña" en la colección de usuarios. En el mundo real del software, **nunca guardamos contraseñas en bases de datos legibles** como Firestore. Eso lo maneja Firebase Authentication de forma encriptada. En Firestore solo guardaremos los metadatos (nombre, correo, fecha).
+*Ejecuta `flutter pub get` después de guardar.*
 
 ---
 
-### Fase 4: Implementación del Código (Frontend Agent)
+## 3. Estructura de Carpetas Sugerida
+```text
+lib/
+├── agents/            # Lógica de Antigravity (opcional para simulación)
+├── models/            # gasto.dart, ingreso.dart, usuario.dart
+├── services/          # firebase_service.dart (CRUD)
+├── screens/           # UI (Login, Dashboard, Formularios)
+└── main.dart          # Punto de entrada e inicialización de Firebase
+```
 
-Aquí tienes el código funcional para el servicio CRUD. La mejor forma de relacionar los datos en Firestore es crear una colección raíz llamada `usuarios`, y dentro de cada documento de usuario, crear subcolecciones para sus finanzas.
+---
 
-**1. El Servicio CRUD (`lib/services/firebase_service.dart`)**
+## 4. Modelado de Datos (Data Agent)
 
-Este archivo maneja toda la lógica de Crear, Leer, Actualizar y Borrar.
-
+### Archivo: `lib/models/gasto.dart`
 ```dart
-import 'package:cloud_firestore/cloud_firestore.dart';
+class Gasto {
+  String? id;
+  double monto;
+  String categoria;
+  String descripcion;
+  DateTime fecha;
 
-class FirebaseService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  Gasto({this.id, required this.monto, required this.categoria, required this.descripcion, required this.fecha});
 
-  // 1. CREAR USUARIO (Metadatos)
-  Future<void> crearUsuario(String uid, String nombre, String correo) async {
-    await _db.collection('usuarios').doc(uid).set({
-      'nombre': nombre,
-      'correo': correo,
-      'fecha_registro': FieldValue.serverTimestamp(),
-    });
-  }
-
-  // 2. CREAR GASTO (Relacionado al UID del usuario)
-  Future<void> agregarGasto(String uid, double monto, String categoria, String descripcion) async {
-    await _db.collection('usuarios').doc(uid).collection('gastos').add({
+  Map<String, dynamic> toMap() {
+    return {
       'monto': monto,
       'categoria': categoria,
       'descripcion': descripcion,
-      'fecha': FieldValue.serverTimestamp(),
-      'tipo': 'gasto'
-    });
+      'fecha': fecha.toIso8601String(),
+    };
   }
 
-  // 3. CREAR INGRESO
-  Future<void> agregarIngreso(String uid, double monto, String fuente) async {
-    await _db.collection('usuarios').doc(uid).collection('ingresos').add({
-      'monto': monto,
-      'fuente': fuente,
-      'fecha': FieldValue.serverTimestamp(),
-      'tipo': 'ingreso'
-    });
-  }
-
-  // 4. LEER GASTOS (Stream para actualización en tiempo real)
-  Stream<QuerySnapshot> obtenerGastos(String uid) {
-    return _db.collection('usuarios').doc(uid).collection('gastos')
-        .orderBy('fecha', descending: true).snapshots();
-  }
-
-  // 5. ACTUALIZAR GASTO
-  Future<void> actualizarGasto(String uid, String gastoId, double nuevoMonto, String nuevaCategoria) async {
-    await _db.collection('usuarios').doc(uid).collection('gastos').doc(gastoId).update({
-      'monto': nuevoMonto,
-      'categoria': nuevaCategoria,
-    });
-  }
-
-  // 6. BORRAR TRANSACCIÓN (Funciona para ingresos o gastos)
-  Future<void> borrarDocumento(String uid, String coleccion, String docId) async {
-    await _db.collection('usuarios').doc(uid).collection(coleccion).doc(docId).delete();
-  }
-}
-```
-
-**2. Punto de Entrada (`lib/main.dart`)**
-
-Debemos inicializar Firebase antes de arrancar la aplicación de Flutter.
-
-```dart
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'screens/home_screen.dart'; // Tu pantalla principal
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Inicia la magia de Firebase
-  runApp(const CrudFinanzasApp());
-}
-
-class CrudFinanzasApp extends StatelessWidget {
-  const CrudFinanzasApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'CRUD Finanzas',
-      theme: ThemeData(
-        brightness: Brightness.dark, // Un toque estético oscuro
-        primarySwatch: Colors.blueGrey,
-      ),
-      home: const HomeScreen(), // Aquí implementarás la UI que llama a FirebaseService
+  factory Gasto.fromMap(String id, Map<String, dynamic> map) {
+    return Gasto(
+      id: id,
+      monto: map['monto']?.toDouble() ?? 0.0,
+      categoria: map['categoria'] ?? '',
+      descripcion: map['descripcion'] ?? '',
+      fecha: DateTime.parse(map['fecha']),
     );
   }
 }
 ```
 
-Con esta arquitectura y el servicio de Firestore listo, tienes el backend y la lógica de conexión completamente resueltos. Los "Agentes" han entregado la infraestructura.
+### Archivo: `lib/models/usuario.dart`
+```dart
+class Usuario {
+  String uid;
+  String nombre;
+  String correo;
+  DateTime fechaRegistro;
 
-Para completar la práctica guiada con tus compañeros, ¿te gustaría que escribamos el código exacto de la interfaz gráfica (`home_screen.dart`) donde se muestran las listas y el botón flotante para agregar los gastos e ingresos?
+  Usuario({required this.uid, required this.nombre, required this.correo, required this.fechaRegistro});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'nombre': nombre,
+      'correo': correo,
+      'fecha_registro': fechaRegistro.toIso8601String(),
+    };
+  }
+}
+```
+
+---
+
+## 5. Implementación del CRUD (Logic Agent)
+
+Crearemos un servicio centralizado para manejar la relación Usuario -> Finanzas.
+
+### Archivo: `lib/services/firebase_service.dart`
+```dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/gasto.dart';
+
+class FirebaseService {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+
+  // CREATE: Agregar gasto a un usuario específico
+  Future<void> addGasto(String userId, Gasto gasto) async {
+    await _db.collection('usuarios').doc(userId).collection('gastos').add(gasto.toMap());
+  }
+
+  // READ: Obtener stream de gastos
+  Stream<List<Gasto>> getGastos(String userId) {
+    return _db
+        .collection('usuarios')
+        .doc(userId)
+        .collection('gastos')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => Gasto.fromMap(doc.id, doc.data()))
+            .toList());
+  }
+
+  // UPDATE
+  Future<void> updateGasto(String userId, Gasto gasto) async {
+    await _db
+        .collection('usuarios')
+        .doc(userId)
+        .collection('gastos')
+        .doc(gasto.id)
+        .update(gasto.toMap());
+  }
+
+  // DELETE
+  Future<void> deleteGasto(String userId, String gastoId) async {
+    await _db
+        .collection('usuarios')
+        .doc(userId)
+        .collection('gastos')
+        .doc(gastoId)
+        .delete();
+  }
+}
+```
+
+---
+
+## 6. Configuración en Consola de Firebase
+
+1.  **Crear Proyecto:** Ve a [Firebase Console](https://console.firebase.google.com/) y crea "CRUD Finanzas".
+2.  **Firestore:** Crea una base de datos en **Modo Prueba**. Crea la colección principal `usuarios`.
+3.  **Authentication:** Habilita el método "Correo electrónico/contraseña".
+4.  **Flutterfire CLI:** (Recomendado) Ejecuta `flutterfire configure` para vincular automáticamente las credenciales.
+
+---
+
+## Práctica Guiada para Estudiantes
+
+> **Paso 1:** Configuren su entorno Antigravity para que el **Agente de Modelado** genere automáticamente la clase `ingreso.dart` siguiendo el patrón de `gasto.dart`.
+>
+> **Paso 2:** En la consola de Firebase, observen cómo al crear un usuario en Auth, deben disparar una función (o un método en Flutter) que cree el documento correspondiente en la colección `usuarios` con su `uid`.
+>
+> **Paso 3:** Implementen un `ListView.builder` que consuma el `Stream` del `Logic Agent` para mostrar los datos en tiempo real.
+
+Este flujo asegura que el código sea modular, escalable y fácil de mantener, aplicando principios de arquitectura limpia.
